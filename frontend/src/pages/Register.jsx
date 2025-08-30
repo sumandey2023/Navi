@@ -40,7 +40,7 @@ const Register = () => {
     <>
       <button
         onClick={toggleTheme}
-        className="p-2 rounded-lg right-0 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 group"
+        className="fixed top-4 right-4 p-2 rounded-lg  hover:shadow-md dark:hover:shadow-md border border-gray-200 dark:border-gray-600 transition-all duration-200 group z-10"
         title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       >
         {isDark ? (
