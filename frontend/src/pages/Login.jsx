@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../config/api";
 import { useTheme } from "../context/ThemeContext";
+import { useUserStore } from "../store";
 
 const Login = () => {
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
+  const { fetchCurrentUser } = useUserStore();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
 
@@ -22,6 +24,10 @@ const Login = () => {
         password: formData.password,
       });
       console.log("Login successful:", response.data);
+
+      // Fetch current user data after successful login
+      await fetchCurrentUser();
+
       navigate("/");
     } catch (error) {
       console.error("Login failed:", error);

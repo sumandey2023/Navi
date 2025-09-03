@@ -68,4 +68,27 @@ async function loginUser(req, res) {
   res.status(200).json({ message: "User logged in successfully" });
 }
 
-module.exports = { registerUser, loginUser, giveAiAssistantName };
+async function getCurrentUser(req, res) {
+  try {
+    const user = req.user;
+    res.status(200).json({
+      user: {
+        id: user._id,
+        name: `${user.fullName.firstName} ${user.fullName.lastName}`,
+        firstName: user.fullName.firstName,
+        lastName: user.fullName.lastName,
+        email: user.email,
+        aiAssistantName: user.aiAssistantName,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+
+module.exports = {
+  registerUser,
+  loginUser,
+  giveAiAssistantName,
+  getCurrentUser,
+};

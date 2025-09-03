@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Sidebar, Header, MessagesArea, InputArea } from "../components";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useChatStore } from "../store";
+import { useChatStore, useUserStore } from "../store";
 import { io } from "socket.io-client";
 import baseUrl from "../config/baseUrl";
 
@@ -29,6 +29,9 @@ const Home = () => {
     setCurrentChat,
     clearChatError,
   } = useChatStore();
+
+  // User store state
+  const { user, fetchCurrentUser, isAuthenticated } = useUserStore();
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -70,6 +73,15 @@ const Home = () => {
       fetchAllChats();
     }
   }, [chatHistory.length, fetchAllChats]);
+
+  // Fetch user data on component mount if not already available
+  useEffect(() => {
+    if (!user && !isAuthenticated) {
+      fetchCurrentUser().catch((error) => {
+        console.log("User not authenticated or error fetching user:", error);
+      });
+    }
+  }, [user, isAuthenticated, fetchCurrentUser]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -148,6 +160,7 @@ const Home = () => {
           isLoading={isLoading}
           messagesEndRef={messagesEndRef}
           currentChat={currentChat}
+          user={user}
         />
 
         <InputArea
