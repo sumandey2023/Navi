@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   Copy,
+  Check,
   ThumbsUp,
   ThumbsDown,
   Volume2,
   Upload,
   RotateCcw,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const Message = ({ message }) => {
   const isUser = message.sender === "user";
@@ -27,7 +32,7 @@ const Message = ({ message }) => {
     );
   }
 
-  // AI message - left side layout
+  // AI message - left side layout with Markdown & code highlighting
   return (
     <div className="flex items-start gap-4 max-w-4xl mx-auto">
       <div className="w-8 h-8 bg-[#40414f] rounded-full flex items-center justify-center flex-shrink-0">
@@ -40,15 +45,99 @@ const Message = ({ message }) => {
         </svg>
       </div>
       <div className="flex-1">
-        <div className="inline-block px-4 py-3 rounded-2xl  text-gray-100">
-          <p className="text-sm leading-relaxed">{message.text}</p>
+        <div className="inline-block px-4 py-3 rounded-2xl text-gray-100 bg-transparent">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              code({ node, inline, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || "");
+                const codeText = String(children).replace(/\n$/, "");
+                if (inline) {
+                  return (
+                    <code
+                      className="bg-[#2d2d2d] px-1.5 py-0.5 rounded text-[0.85em]"
+                      {...props}
+                    >
+                      {children}
+                    </code>
+                  );
+                }
+                return (
+                  <div className="relative group">
+                    <CopyButton text={codeText} />
+                    <SyntaxHighlighter
+                      style={oneDark}
+                      language={match ? match[1] : undefined}
+                      PreTag="div"
+                      wrapLongLines
+                      customStyle={{
+                        margin: 0,
+                        padding: "16px",
+                        borderRadius: "12px",
+                        background: "#1f2937",
+                        fontSize: "0.9rem",
+                      }}
+                      {...props}
+                    >
+                      {codeText}
+                    </SyntaxHighlighter>
+                  </div>
+                );
+              },
+              a({ children, href }) {
+                return (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-400 underline"
+                  >
+                    {children}
+                  </a>
+                );
+              },
+              ul({ children }) {
+                return <ul className="list-disc pl-6 space-y-1">{children}</ul>;
+              },
+              ol({ children }) {
+                return (
+                  <ol className="list-decimal pl-6 space-y-1">{children}</ol>
+                );
+              },
+              strong({ children }) {
+                return <strong className="font-semibold">{children}</strong>;
+              },
+              em({ children }) {
+                return <em className="italic">{children}</em>;
+              },
+              h1({ children }) {
+                return (
+                  <h1 className="text-lg font-semibold mb-1">{children}</h1>
+                );
+              },
+              h2({ children }) {
+                return (
+                  <h2 className="text-base font-semibold mb-1">{children}</h2>
+                );
+              },
+              h3({ children }) {
+                return (
+                  <h3 className="text-sm font-semibold mb-1">{children}</h3>
+                );
+              },
+              p({ children }) {
+                return (
+                  <p className="text-sm leading-relaxed mb-2">{children}</p>
+                );
+              },
+            }}
+          >
+            {message.text}
+          </ReactMarkdown>
         </div>
 
         {/* Interaction Buttons for AI messages */}
         <div className="flex items-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button className="p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
-            <Copy className="w-4 h-4" />
-          </button>
           <button className="p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
             <ThumbsUp className="w-4 h-4" />
           </button>
@@ -71,3 +160,29 @@ const Message = ({ message }) => {
 };
 
 export default Message;
+
+const CopyButton = ({ text }) => {
+  const [copied, setCopied] = useState(false);
+  const onCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch (_e) {}
+  }, [text]);
+
+  return (
+    <button
+      onClick={onCopy}
+      className="absolute right-2 top-2  inline-flex items-center gap-1 px-2 py-1 rounded bg-[#374151] text-gray-200 hover:bg-[#4b5563] transition-colors"
+      aria-label="Copy code"
+    >
+      {copied ? (
+        <Check className="w-3.5 h-3.5" />
+      ) : (
+        <Copy className="w-3.5 h-3.5" />
+      )}
+      <span className="text-[11px]">{copied ? "Copied" : "Copy"}</span>
+    </button>
+  );
+};

@@ -5,9 +5,9 @@ import LoadingMessage from "./LoadingMessage";
 
 const MessagesArea = ({ messages, isLoading, messagesEndRef, currentChat }) => {
   return (
-    <div className="flex-1 overflow-y-auto bg-[#212121] p-4 space-y-6">
+    <div className="flex-1 overflow-y-auto bg-[#212121]">
       {currentChat && (
-        <div className="sticky top-0 z-10 bg-[#212121] py-1">
+        <div className="sticky top-0 z-10 bg-[#212121] ">
           <h2 className="text-center text-gray-300 text-sm font-medium">
             {currentChat.title}
           </h2>
