@@ -57,6 +57,33 @@ const useChatStore = create((set, get) => ({
     }
   },
 
+  fetchChatMessages: async (chatId) => {
+    try {
+      set({ isLoading: true });
+      const response = await api.get(`/chat/${chatId}/messages`);
+
+      const formattedMessages = response.data.messages.map((m) => ({
+        id: m._id,
+        text: m.content,
+        sender: m.role === "model" ? "ai" : "user",
+        timestamp: new Date(m.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      }));
+
+      set({ messages: formattedMessages, isLoading: false });
+      return formattedMessages;
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      set({
+        chatError: error.response?.data?.message || "Failed to fetch messages",
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
   createNewChat: async (title) => {
     try {
       set({ isCreatingChat: true, chatError: "" });

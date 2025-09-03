@@ -14,16 +14,19 @@ const Home = () => {
   // Zustand store state
   const {
     chatHistory,
+    currentChat,
     messages,
     isLoading,
     isCreatingChat,
     chatError,
     fetchAllChats,
     createNewChat,
+    fetchChatMessages,
     setMessages,
     addMessage,
     clearMessages,
     setLoading,
+    setCurrentChat,
     clearChatError,
   } = useChatStore();
 
@@ -39,12 +42,26 @@ const Home = () => {
       withCredentials: true,
     });
 
-    tempSocket.on("ai-response", (message) => {
-      console.log(message);
+    tempSocket.on("ai-response", ({ content }) => {
+      const aiMessage = {
+        id: Date.now() + 1,
+        text: content,
+        sender: "ai",
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+      addMessage(aiMessage);
+      setLoading(false);
     });
 
     setSocket(tempSocket);
-  }, []);
+
+    return () => {
+      tempSocket.disconnect();
+    };
+  }, [addMessage, setLoading]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -77,33 +94,15 @@ const Home = () => {
       inputRef.current.style.height = "48px";
     }
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponses = [
-        "That's an interesting question! Let me help you with that.",
-        "I understand what you're asking. Here's my perspective on that topic.",
-        "Great question! Based on what you've shared, I think...",
-        "I'd be happy to help you with that. Here's what I can suggest:",
-        "That's a thoughtful inquiry. From my understanding...",
-        "I appreciate you asking that. Let me break this down for you.",
-        "Excellent point! Here's how I see it:",
-        "That's definitely worth exploring. In my view...",
-      ];
-
-      const randomResponse =
-        aiResponses[Math.floor(Math.random() * aiResponses.length)];
-      const aiMessage = {
-        id: Date.now() + 1,
-        text: `${randomResponse} This is a demo response to: "${userMessage.text}". In a real application, this would be replaced with an actual AI service response providing helpful and detailed information.`,
-        sender: "ai",
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
-      addMessage(aiMessage);
-      setLoading(false);
-    }, 1500);
+    // Emit to backend via Socket.IO
+    if (socket && currentChat?.id) {
+      socket.emit("ai-message", {
+        chat: currentChat.id,
+        content: userInput,
+      });
+    } else {
+      console.warn("No active chat or socket not connected");
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -134,6 +133,10 @@ const Home = () => {
         isCreatingChat={isCreatingChat}
         chatError={chatError}
         onClosePopup={clearChatError}
+        onSelectChat={async (chat) => {
+          setCurrentChat(chat);
+          await fetchChatMessages(chat.id);
+        }}
       />
 
       {/* Main Content */}
@@ -144,6 +147,7 @@ const Home = () => {
           messages={messages}
           isLoading={isLoading}
           messagesEndRef={messagesEndRef}
+          currentChat={currentChat}
         />
 
         <InputArea
