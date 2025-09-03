@@ -21,6 +21,9 @@ const ChatHistory = ({ isSidebarOpen, chatHistory }) => {
             <div
               key={chat.id}
               className="group flex items-center justify-between px-3 py-2 text-gray-300 hover:bg-[#343541] cursor-pointer rounded-lg transition-colors"
+              onClick={() => {
+                console.log(chat);
+              }}
             >
               <div className="flex-1 min-w-0">
                 <p className="text-sm truncate">{chat.title}</p>

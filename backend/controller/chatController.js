@@ -16,6 +16,17 @@ async function createChat(req, res) {
   }
 }
 
+async function getChats(req, res) {
+  try {
+    const user = req.user;
+    const chats = await chatModel.find({ user: user._id });
+    return res.status(200).json({ chats });
+  } catch (error) {
+    return res.status(500).json({ message: "Server Error" });
+  }
+}
+
 module.exports = {
   createChat,
+  getChats,
 };

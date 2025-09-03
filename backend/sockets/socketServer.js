@@ -7,7 +7,14 @@ const messageModel = require("../models/messageModel");
 const { createMemory, queryMemory } = require("../service/vectorService");
 
 function initSocketServer(httpServer) {
-  const io = new Server(httpServer, {});
+  const io = new Server(httpServer, {
+    cors: {
+      origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+      methods: ["GET", "POST"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
+    },
+  });
 
   io.use(async (socket, next) => {
     const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
@@ -25,6 +32,7 @@ function initSocketServer(httpServer) {
   });
 
   io.on("connection", (socket) => {
+    console.log("A user connected");
     socket.on("ai-message", async (messagePayload) => {
       /*
       const message = await messageModel.create({

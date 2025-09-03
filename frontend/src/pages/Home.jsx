@@ -1,32 +1,31 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Sidebar, Header, MessagesArea, InputArea } from "../components";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useChatStore } from "../store";
+import { io } from "socket.io-client";
+import baseUrl from "../config/baseUrl";
 
 const Home = () => {
-  const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
-  const [chatHistory, setChatHistory] = useState([
-    { id: 1, title: "AI prompt creation", timestamp: "2 hours ago" },
-    { id: 2, title: "Write prompt request", timestamp: "1 day ago" },
-    { id: 3, title: "Change select color", timestamp: "3 days ago" },
-    { id: 4, title: "React asset folder path", timestamp: "4 days ago" },
-    { id: 5, title: "AI assistant names", timestamp: "5 days ago" },
-    { id: 6, title: "Write email for user", timestamp: "6 days ago" },
-    { id: 7, title: "Form code generator website", timestamp: "7 days ago" },
-    { id: 8, title: "Form builder prompt", timestamp: "8 days ago" },
-    { id: 9, title: "Quota exceeded error", timestamp: "9 days ago" },
-    { id: 10, title: "शिव धनुष राम ने तोड़ा", timestamp: "10 days ago" },
-    { id: 11, title: "Enable mouse pointer Spline", timestamp: "11 days ago" },
-    { id: 12, title: "Video prompt generation", timestamp: "12 days ago" },
-
-    {
-      id: 13,
-      title: "Power calculation and C++ code",
-      timestamp: "13 days ago",
-    },
-    { id: 14, title: "Create a new chat", timestamp: "14 days ago" },
-  ]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [socket, setSocket] = useState(null);
+
+  // Zustand store state
+  const {
+    chatHistory,
+    messages,
+    isLoading,
+    isCreatingChat,
+    chatError,
+    fetchAllChats,
+    createNewChat,
+    setMessages,
+    addMessage,
+    clearMessages,
+    setLoading,
+    clearChatError,
+  } = useChatStore();
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -36,8 +35,24 @@ const Home = () => {
   }, [messages]);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    const tempSocket = io(baseUrl, {
+      withCredentials: true,
+    });
+
+    tempSocket.on("ai-response", (message) => {
+      console.log(message);
+    });
+
+    setSocket(tempSocket);
   }, []);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+    // Only fetch chats if chatHistory is empty (efficient approach)
+    if (chatHistory.length === 0) {
+      fetchAllChats();
+    }
+  }, [chatHistory.length, fetchAllChats]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -53,9 +68,9 @@ const Home = () => {
       }),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    addMessage(userMessage);
     setUserInput("");
-    setIsLoading(true);
+    setLoading(true);
 
     // Auto-resize textarea back to original size
     if (inputRef.current) {
@@ -86,8 +101,8 @@ const Home = () => {
           minute: "2-digit",
         }),
       };
-      setMessages((prev) => [...prev, aiMessage]);
-      setIsLoading(false);
+      addMessage(aiMessage);
+      setLoading(false);
     }, 1500);
   };
 
@@ -110,22 +125,15 @@ const Home = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const startNewChat = () => {
-    setMessages([]);
-    setIsSidebarOpen(false);
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.style.height = "48px";
-    }
-  };
-
   return (
     <div className="flex h-screen bg-[#343541]">
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
-        startNewChat={startNewChat}
         chatHistory={chatHistory}
+        isCreatingChat={isCreatingChat}
+        chatError={chatError}
+        onClosePopup={clearChatError}
       />
 
       {/* Main Content */}
@@ -147,6 +155,20 @@ const Home = () => {
           inputRef={inputRef}
         />
       </div>
+
+      {/* Toast Container for notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   );
 };

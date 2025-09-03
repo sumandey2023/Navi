@@ -9,3 +9,4 @@ export { default as Message } from "./Message";
 export { default as WelcomeScreen } from "./WelcomeScreen";
 export { default as LoadingMessage } from "./LoadingMessage";
 export { default as InputArea } from "./InputArea";
+export { default as NewChatPopup } from "./NewChatPopup";

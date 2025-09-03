@@ -7,8 +7,10 @@ import UserProfile from "./UserProfile";
 const Sidebar = ({
   isSidebarOpen,
   toggleSidebar,
-  startNewChat,
   chatHistory,
+  isCreatingChat,
+  chatError,
+  onClosePopup,
 }) => {
   return (
     <>
@@ -47,7 +49,9 @@ const Sidebar = ({
 
         <NewChatButton
           isSidebarOpen={isSidebarOpen}
-          startNewChat={startNewChat}
+          isCreatingChat={isCreatingChat}
+          chatError={chatError}
+          onClosePopup={onClosePopup}
         />
 
         <ChatHistory isSidebarOpen={isSidebarOpen} chatHistory={chatHistory} />
