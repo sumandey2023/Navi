@@ -35,7 +35,7 @@ const Message = ({ message }) => {
   // AI message - left side layout with Markdown & code highlighting
   return (
     <div className="flex items-start gap-4 max-w-4xl mx-auto">
-      <div className="w-8 h-8 bg-[#40414f] rounded-full flex items-center justify-center flex-shrink-0">
+      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
         <svg
           className="w-5 h-5 text-white"
           viewBox="0 0 24 24"
@@ -52,21 +52,46 @@ const Message = ({ message }) => {
               code({ node, inline, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || "");
                 const codeText = String(children).replace(/\n$/, "");
+
                 if (inline) {
+                  // For inline code, we'll use a simpler approach - no copy button
                   return (
                     <code
-                      className="bg-[#2d2d2d] px-1.5 py-0.5 rounded text-[0.85em]"
+                      className="bg-[#374151] px-1.5 py-0.5 rounded text-[0.85em] text-gray-200"
                       {...props}
                     >
                       {children}
                     </code>
                   );
                 }
+                // Check if this is a small code block (likely from key points)
+                const isSmallCodeBlock =
+                  codeText.length < 100 && !codeText.includes("\n");
+
+                if (isSmallCodeBlock) {
+                  // Render small code blocks without copy button and with simpler styling
+                  return (
+                    <code className="bg-[#1f2937] px-2 py-1 rounded text-sm text-gray-100 inline-block leading-relaxed">
+                      {codeText}
+                    </code>
+                  );
+                }
+
                 return (
                   <div className="relative group">
                     <CopyButton text={codeText} />
                     <SyntaxHighlighter
-                      style={oneDark}
+                      style={{
+                        ...oneDark,
+                        'code[class*="language-"]': {
+                          ...oneDark['code[class*="language-"]'],
+                          background: "transparent",
+                        },
+                        'pre[class*="language-"]': {
+                          ...oneDark['pre[class*="language-"]'],
+                          background: "transparent",
+                        },
+                      }}
                       language={match ? match[1] : undefined}
                       PreTag="div"
                       wrapLongLines
@@ -102,6 +127,11 @@ const Message = ({ message }) => {
               ol({ children }) {
                 return (
                   <ol className="list-decimal pl-6 space-y-1">{children}</ol>
+                );
+              },
+              li({ children }) {
+                return (
+                  <li className="text-sm leading-relaxed mb-1">{children}</li>
                 );
               },
               strong({ children }) {
