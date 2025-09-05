@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useContext } from "react";
+import { ChatContext } from "../context/ChatContext.jsx";
 import {
   Copy,
   Check,
@@ -13,7 +14,7 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-const Message = ({ message, user }) => {
+const Message = ({ message, user, isViewOnly }) => {
   const isUser = message.sender === "user";
 
   // Get user's first letter for avatar
@@ -94,7 +95,7 @@ const Message = ({ message, user }) => {
 
                 return (
                   <div className="relative group w-full max-w-full overflow-hidden mobile-code-container">
-                    <CopyButton text={codeText} />
+                    <CopyButton text={codeText} isViewOnly={isViewOnly} />
                     <div
                       className="overflow-x-auto max-w-full mobile-code-container"
                       style={{
@@ -220,23 +221,25 @@ const Message = ({ message, user }) => {
         </div>
 
         {/* Interaction Buttons for AI messages */}
-        <div className="flex items-center gap-1 mt-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-          <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
-            <ThumbsUp className="w-4 h-4" />
-          </button>
-          <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
-            <ThumbsDown className="w-4 h-4" />
-          </button>
-          <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
-            <Volume2 className="w-4 h-4" />
-          </button>
-          <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
-            <Upload className="w-4 h-4" />
-          </button>
-          <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
-            <RotateCcw className="w-4 h-4" />
-          </button>
-        </div>
+        {!isViewOnly && (
+          <div className="flex items-center gap-1 mt-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+            <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
+              <ThumbsUp className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
+              <ThumbsDown className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
+              <Volume2 className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
+              <Upload className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 sm:p-1 text-gray-400 hover:text-gray-300 hover:bg-[#40414f] rounded transition-colors">
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -244,20 +247,25 @@ const Message = ({ message, user }) => {
 
 export default Message;
 
-const CopyButton = ({ text }) => {
+const CopyButton = ({ text, isViewOnly }) => {
   const [copied, setCopied] = useState(false);
   const onCopy = useCallback(async () => {
+    if (isViewOnly) return;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1200);
     } catch (_e) {}
-  }, [text]);
+  }, [text, isViewOnly]);
 
   return (
     <button
       onClick={onCopy}
-      className="absolute right-1 top-1 sm:right-2 sm:top-2 inline-flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded bg-[#374151] text-gray-200 hover:bg-[#4b5563] transition-colors z-10"
+      className={`absolute right-1 top-1 sm:right-2 sm:top-2 inline-flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded ${
+        isViewOnly
+          ? "bg-[#2b3341] text-gray-400 cursor-not-allowed"
+          : "bg-[#374151] text-gray-200 hover:bg-[#4b5563]"
+      } transition-colors z-10`}
       aria-label="Copy code"
     >
       {copied ? (

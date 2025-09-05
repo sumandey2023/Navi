@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar, Header, MessagesArea, InputArea } from "../components";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -7,6 +8,7 @@ import { io } from "socket.io-client";
 import baseUrl from "../config/baseUrl";
 
 const Home = () => {
+  const navigate = useNavigate();
   const [userInput, setUserInput] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [socket, setSocket] = useState(null);
@@ -28,6 +30,9 @@ const Home = () => {
     setLoading,
     setCurrentChat,
     clearChatError,
+    renameChat,
+    deleteChat,
+    shareChat,
   } = useChatStore();
 
   // User store state
@@ -86,6 +91,23 @@ const Home = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!userInput.trim() || isLoading) return;
+
+    // If no current chat, create a new one
+    if (!currentChat) {
+      try {
+        setLoading(true);
+        const newChat = await createNewChat(userInput);
+        if (newChat) {
+          setCurrentChat(newChat);
+          // Navigate to the new chat route
+          navigate(`/chat/${newChat.id}`);
+        }
+      } catch (error) {
+        console.error("Error creating new chat:", error);
+        setLoading(false);
+      }
+      return;
+    }
 
     const userMessage = {
       id: Date.now(),
@@ -148,12 +170,17 @@ const Home = () => {
         onSelectChat={async (chat) => {
           setCurrentChat(chat);
           await fetchChatMessages(chat.id);
+          // Navigate to the specific chat route
+          navigate(`/chat/${chat.id}`);
         }}
+        onRenameChat={renameChat}
+        onDeleteChat={deleteChat}
+        onShareChat={shareChat}
       />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <Header toggleSidebar={toggleSidebar} />
+        <Header toggleSidebar={toggleSidebar} currentChat={currentChat} />
 
         <MessagesArea
           messages={messages}

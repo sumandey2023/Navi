@@ -12,6 +12,9 @@ const Sidebar = ({
   chatError,
   onClosePopup,
   onSelectChat,
+  onRenameChat,
+  onDeleteChat,
+  onShareChat,
 }) => {
   return (
     <>
@@ -59,6 +62,9 @@ const Sidebar = ({
           isSidebarOpen={isSidebarOpen}
           chatHistory={chatHistory}
           onSelectChat={onSelectChat}
+          onRenameChat={onRenameChat}
+          onDeleteChat={onDeleteChat}
+          onShareChat={onShareChat}
         />
 
         <UserProfile />

@@ -24,6 +24,24 @@ const useUserStore = create(
 
       clearError: () => set({ error: "" }),
 
+      updateUser: async (updatedUser) => {
+        try {
+          set({ isLoading: true, error: "" });
+          const response = await api.put("/auth/update", updatedUser);
+          set({
+            user: response.data.user,
+            isLoading: false,
+          });
+          return response.data.user;
+        } catch (error) {
+          set({
+            error: error.response?.data?.message || "Failed to update user",
+            isLoading: false,
+          });
+          throw error;
+        }
+      },
+
       // Auth Actions
       fetchCurrentUser: async () => {
         try {

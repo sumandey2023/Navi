@@ -2,6 +2,7 @@ import React from "react";
 import Message from "./Message";
 import WelcomeScreen from "./WelcomeScreen";
 import LoadingMessage from "./LoadingMessage";
+import "../styles/messagesArea.css"; // Import the new CSS file
 
 const MessagesArea = ({
   messages,
@@ -9,6 +10,7 @@ const MessagesArea = ({
   messagesEndRef,
   currentChat,
   user,
+  isViewOnly = false,
 }) => {
   return (
     <div className="flex-1 overflow-y-auto bg-[#212121]">
@@ -21,10 +23,21 @@ const MessagesArea = ({
       )}
       <div className="py-4 space-y-4">
         {messages.length === 0 ? (
-          <WelcomeScreen />
+          isViewOnly ? (
+            <div className="text-center text-gray-400">
+              This shared chat has no messages.
+            </div>
+          ) : (
+            <WelcomeScreen />
+          )
         ) : (
           messages.map((message) => (
-            <Message key={message.id} message={message} user={user} />
+            <Message
+              key={message.id}
+              message={message}
+              user={user}
+              isViewOnly={isViewOnly}
+            />
           ))
         )}
 
