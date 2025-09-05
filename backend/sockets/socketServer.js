@@ -12,7 +12,7 @@ function initSocketServer(httpServer) {
       origin: [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://navi-j79mrxf3w-suman-deys-projects-284c6c1b.vercel.app/",
+        "https://navi20.vercel.app",
       ],
       methods: ["GET", "POST"],
       allowedHeaders: ["Content-Type", "Authorization"],
