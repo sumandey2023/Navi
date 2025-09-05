@@ -9,7 +9,11 @@ const { createMemory, queryMemory } = require("../service/vectorService");
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {
     cors: {
-      origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+      origin: [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://navi-j79mrxf3w-suman-deys-projects-284c6c1b.vercel.app/",
+      ],
       methods: ["GET", "POST"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,

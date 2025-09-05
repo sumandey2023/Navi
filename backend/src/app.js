@@ -8,7 +8,10 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://navi-j79mrxf3w-suman-deys-projects-284c6c1b.vercel.app/",
+    ], // Add your Vercel URL here
     credentials: true,
   })
 );
