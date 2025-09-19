@@ -20,7 +20,8 @@ const Header = ({ toggleSidebar, currentChat }) => {
 
   return (
     <>
-      <div className="bg-[#212121] p-4 flex items-center justify-between">
+      {/* Fixed Header */}
+      <div className="bg-[#212121] p-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center gap-4">
           {toggleSidebar && (
             <button
@@ -44,6 +45,9 @@ const Header = ({ toggleSidebar, currentChat }) => {
           </button>
         </div>
       </div>
+
+      {/* Add top padding so page content doesn’t go under header */}
+      <div className="pt-16">{/* Page content will go here */}</div>
 
       {/* Share Modal */}
       <ShareChatModal

@@ -40,7 +40,7 @@ const SidebarHeader = ({ isSidebarOpen, toggleSidebar }) => {
             <span className="text-white font-semibold text-lg">
               {user?.aiAssistantName || "Aria"}
             </span>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
+            {/* <ChevronDown className="w-4 h-4 text-gray-400" /> */}
           </div>
         </div>
       </div>
