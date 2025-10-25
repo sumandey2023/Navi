@@ -296,7 +296,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#343541]">
+    <div className="flex h-screen bg-[#212121]">
       {/* Only show sidebar for owned chats */}
       {!isSharedChat && (
         <Sidebar

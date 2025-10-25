@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useUserStore } from "../store";
-import { Bot } from "lucide-react";
+import { Bot, Check, X } from "lucide-react";
+import baseUrl from "../config/baseUrl";
 
 const AssistantNameEdit = ({ onComplete }) => {
   const [editedName, setEditedName] = useState("Aria");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const inputRef = useRef(null);
   const { user, fetchCurrentUser } = useUserStore();
 
@@ -22,26 +25,56 @@ const AssistantNameEdit = ({ onComplete }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editedName.trim()) {
-      try {
-        const response = await fetch("/api/auth/give-ai-assistant-name", {
+    if (!editedName.trim()) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/api/auth/give-ai-assistant-name`,
+        {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ aiAssistantName: editedName.trim() }),
           credentials: "include",
-        });
+        }
+      );
 
-        if (response.ok) {
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+
+      if (response.ok) {
+        try {
+          const data = await response.json();
+          console.log("Success response:", data);
           await fetchCurrentUser(); // Refresh user data
           if (onComplete) onComplete();
-        } else {
-          throw new Error("Failed to update assistant name");
+        } catch (jsonError) {
+          console.error("Error parsing success response:", jsonError);
+          // Even if JSON parsing fails, the request was successful
+          await fetchCurrentUser();
+          if (onComplete) onComplete();
         }
-      } catch (error) {
-        console.error("Error updating assistant name:", error);
+      } else {
+        let errorMessage = "Failed to update assistant name";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (jsonError) {
+          console.error("Error parsing error response:", jsonError);
+          // If response is not JSON, use status text or default message
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
+    } catch (error) {
+      console.error("Error updating assistant name:", error);
+      setError(error.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -52,23 +85,32 @@ const AssistantNameEdit = ({ onComplete }) => {
     }
   };
 
+  const isDisabled =
+    !editedName.trim() ||
+    editedName.trim() === user?.aiAssistantName ||
+    isLoading;
+
   return (
     <div className="p-6">
-      <div className="mb-8 flex items-center gap-4">
-        <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
-          <Bot className="w-6 h-6 text-blue-500" />
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold text-white mb-1">
-            Change Assistant Name
-          </h2>
-          <p className="text-sm text-gray-400">
-            Customize your AI assistant's identity
-          </p>
-        </div>
+      {/* Header Section */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-white">
+          Change Assistant Name
+        </h2>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="flex items-center gap-2">
+            <X className="w-4 h-4 text-red-400 flex-shrink-0" />
+            <p className="text-red-400 text-sm font-medium">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Form Section */}
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
           <label
             htmlFor="assistantName"
@@ -84,37 +126,48 @@ const AssistantNameEdit = ({ onComplete }) => {
               value={editedName}
               onChange={(e) => setEditedName(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full px-4 py-3 bg-[#40414f] rounded-xl border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none text-white placeholder-gray-400 transition-all text-lg"
+              className="w-full px-3 py-2 bg-[#343541] border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter a name for your assistant"
               autoFocus
               maxLength={30}
+              disabled={isLoading}
             />
-            <div className="absolute right-4 top-3.5 text-gray-400 text-sm">
+            <div className="absolute right-3 top-2 text-gray-400 text-xs">
               {editedName.length}/30
             </div>
           </div>
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-gray-400">
             This name will be displayed in your conversations with the AI
             assistant
           </p>
         </div>
 
-        <div className="flex justify-end gap-3 pt-6 border-t border-gray-700/50">
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-4">
           <button
             type="button"
             onClick={onComplete}
-            className="px-4 py-2.5 text-gray-300 hover:text-white hover:bg-[#40414f] rounded-lg transition-colors text-sm font-medium"
+            disabled={isLoading}
+            className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#2a2b32] disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-            disabled={
-              !editedName.trim() || editedName.trim() === user?.aiAssistantName
-            }
+            disabled={isDisabled}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium flex items-center gap-2"
           >
-            Save Changes
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-gray-300 border-t-white rounded-full animate-spin"></div>
+                Saving...
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4" />
+                Save Changes
+              </>
+            )}
           </button>
         </div>
       </form>

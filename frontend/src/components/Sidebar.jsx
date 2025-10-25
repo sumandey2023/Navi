@@ -35,7 +35,7 @@ const Sidebar = ({
       <div
         className={`
          fixed lg:static inset-y-0 left-0 z-50
-         w-80 sm:w-72 bg-[#181818] shadow-xl lg:shadow-none
+         w-80 sm:w-72 bg-[#181818]
          transform transition-all duration-300 ease-out
          lg:translate-x-0
          flex flex-col

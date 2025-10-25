@@ -159,7 +159,7 @@ const Home = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#343541]">
+    <div className="flex h-screen bg-[#212121]">
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}

@@ -10,6 +10,6 @@ const { isLoggedIn } = require("../middleware/isLoggedIn");
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.post("/give-ai-assistant-name", giveAiAssistantName);
+router.post("/give-ai-assistant-name", isLoggedIn, giveAiAssistantName);
 router.get("/me", isLoggedIn, getCurrentUser);
 module.exports = router;

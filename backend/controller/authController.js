@@ -38,13 +38,42 @@ async function registerUser(req, res) {
 }
 
 async function giveAiAssistantName(req, res) {
-  const { aiAssistantName } = req.body;
-  const userId = req.user._id;
-
   try {
-    await userModel.findByIdAndUpdate(userId, { aiAssistantName });
-    res.status(200).json({ message: "Assistant name added successfully" });
+    const { aiAssistantName } = req.body;
+    const userId = req.user._id;
+
+    // Validate input
+    if (
+      !aiAssistantName ||
+      typeof aiAssistantName !== "string" ||
+      aiAssistantName.trim().length === 0
+    ) {
+      return res.status(400).json({ message: "Assistant name is required" });
+    }
+
+    if (aiAssistantName.trim().length > 30) {
+      return res
+        .status(400)
+        .json({ message: "Assistant name must be 30 characters or less" });
+    }
+
+    // Update the user's assistant name
+    const updatedUser = await userModel.findByIdAndUpdate(
+      userId,
+      { aiAssistantName: aiAssistantName.trim() },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Assistant name updated successfully",
+      aiAssistantName: updatedUser.aiAssistantName,
+    });
   } catch (error) {
+    console.error("Error updating assistant name:", error);
     res.status(500).json({ message: "Server Error" });
   }
 }

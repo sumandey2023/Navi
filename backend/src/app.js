@@ -43,4 +43,14 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "OK" });
 });
 
+// 404 handler for unmatched routes
+app.use((req, res) => {
+  console.log(`404 - Route not found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({
+    message: "Route not found",
+    method: req.method,
+    url: req.originalUrl,
+  });
+});
+
 module.exports = app;

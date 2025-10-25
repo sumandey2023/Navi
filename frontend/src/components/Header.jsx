@@ -21,7 +21,7 @@ const Header = ({ toggleSidebar, currentChat }) => {
   return (
     <>
       {/* Fixed Header */}
-      <div className="bg-[#212121] p-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
+      <div className="bg-[#212121] p-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50 lg:left-80">
         <div className="flex items-center gap-4">
           {toggleSidebar && (
             <button
