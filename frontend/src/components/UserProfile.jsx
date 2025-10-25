@@ -1,10 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store";
 import { LogOut, User, Settings } from "lucide-react";
+import { toast } from "react-toastify";
+import LogoutModal from "./LogoutModal";
 
 const UserProfile = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
   const { user, logout } = useUserStore();
 
   // Get user's first letter for avatar
@@ -43,11 +48,42 @@ const UserProfile = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
     setIsOpen(false);
-    // You might want to redirect to login page here
-    window.location.href = "/login";
+  };
+
+  const handleLogoutConfirm = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Error during logout", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    } finally {
+      setShowLogoutModal(false);
+    }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
   };
 
   return (
@@ -104,7 +140,7 @@ const UserProfile = () => {
               <span className="text-sm">Settings</span>
             </button>
             <button
-              onClick={handleLogout}
+              onClick={handleLogoutClick}
               className="w-full flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-[#343541] transition-colors"
             >
               <LogOut className="w-4 h-4" />
@@ -113,6 +149,13 @@ const UserProfile = () => {
           </div>
         </div>
       )}
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
+      />
     </div>
   );
 };

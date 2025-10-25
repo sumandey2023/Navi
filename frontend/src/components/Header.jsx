@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store";
 import { toast } from "react-toastify";
 import ShareChatModal from "./ShareChatModal";
+import LogoutModal from "./LogoutModal";
 
 const Header = ({ toggleSidebar, currentChat }) => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Header = ({ toggleSidebar, currentChat }) => {
     isOpen: false,
     chat: null,
   });
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleShare = () => {
     if (currentChat) {
@@ -23,7 +25,11 @@ const Header = ({ toggleSidebar, currentChat }) => {
     setShareModal({ isOpen: false, chat: null });
   };
 
-  const handleLogout = async () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = async () => {
     try {
       await logout();
       toast.success("Logged out successfully", {
@@ -47,7 +53,13 @@ const Header = ({ toggleSidebar, currentChat }) => {
         draggable: true,
         theme: "dark",
       });
+    } finally {
+      setShowLogoutModal(false);
     }
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
   };
 
   return (
@@ -74,7 +86,7 @@ const Header = ({ toggleSidebar, currentChat }) => {
             <Share2 className="w-5 h-5" />
           </button>
           <button
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             className="p-2 text-gray-300 hover:bg-[#40414f] rounded-lg transition-colors"
             title="Logout"
           >
@@ -91,6 +103,13 @@ const Header = ({ toggleSidebar, currentChat }) => {
         isOpen={shareModal.isOpen}
         onClose={handleCloseShareModal}
         chat={shareModal.chat}
+      />
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={handleLogoutCancel}
+        onConfirm={handleLogoutConfirm}
       />
     </>
   );

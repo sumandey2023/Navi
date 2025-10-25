@@ -296,7 +296,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#212121]">
+    <div className="flex h-screen bg-[#212121] overflow-hidden">
       {/* Only show sidebar for owned chats */}
       {!isSharedChat && (
         <Sidebar
@@ -314,7 +314,7 @@ const Chat = () => {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-[#212121]">
         <Header
           toggleSidebar={isSharedChat ? null : toggleSidebar}
           currentChat={currentChat}

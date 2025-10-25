@@ -82,8 +82,8 @@ const InputArea = ({
   };
 
   return (
-    <div className="bg-[#212121] border-t border-gray-700/50">
-      <div className="max-w-4xl mx-auto p-3 sm:p-4">
+    <div className="bg-[#212121] border-t border-gray-700/50 min-h-0 w-full relative">
+      <div className="max-w-4xl mx-auto p-3 sm:p-4 w-full relative">
         {/* Main Input Container */}
         <div className="relative">
           <form onSubmit={handleSubmit} className="relative">
@@ -96,12 +96,14 @@ const InputArea = ({
                     : "border-gray-600/30 hover:border-gray-500/50"
                 }
                 ${isLoading ? "opacity-70" : ""}
+                ${isMobile ? "shadow-none" : ""}
+                w-full overflow-hidden
               `}
             >
               {/* Input Row */}
-              <div className="flex items-center gap-3 p-3 sm:p-4">
+              <div className="flex items-center gap-3 p-3 sm:p-4 w-full relative">
                 {/* Text Input */}
-                <div className="flex-1 relative">
+                <div className="flex-1 relative bg-transparent">
                   <textarea
                     ref={inputRef}
                     value={userInput}
@@ -110,7 +112,7 @@ const InputArea = ({
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     placeholder="Message Navi..."
-                    className="w-full bg-transparent text-white placeholder-gray-500 resize-none focus:outline-none text-sm leading-relaxed pr-2"
+                    className="w-full bg-transparent text-white placeholder-gray-500 resize-none focus:outline-none text-sm leading-relaxed pr-2 border-none focus:bg-transparent"
                     rows="1"
                     style={{ minHeight: "20px", maxHeight: "100px" }}
                     disabled={isLoading}
@@ -125,10 +127,13 @@ const InputArea = ({
                     relative overflow-hidden rounded-lg transition-all duration-200 transform
                     ${
                       userInput.trim() && !isLoading
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-105 shadow-md shadow-blue-500/20"
+                        ? isMobile
+                          ? "bg-gradient-to-r from-blue-600 to-purple-600 active:from-blue-700 active:to-purple-700 active:scale-95"
+                          : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-105 shadow-md shadow-blue-500/20"
                         : "bg-gray-600 cursor-not-allowed"
                     }
                     p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center flex-shrink-0
+                    ${isMobile ? "touch-manipulation" : ""}
                   `}
                   aria-label="Send message"
                 >
@@ -169,7 +174,7 @@ const InputArea = ({
         </div>
 
         {/* Footer - Show different text based on screen size */}
-        <div className="mt-2 text-center">
+        <div className="mt-2 text-center bg-[#212121]">
           <p className="text-xs text-gray-500">
             {isMobile
               ? "Tap send button to send message"

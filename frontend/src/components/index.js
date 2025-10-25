@@ -12,3 +12,4 @@ export { default as InputArea } from "./InputArea";
 export { default as NewChatPopup } from "./NewChatPopup";
 export { default as ProtectedRoute } from "./ProtectedRoute";
 export { default as LoadingScreen } from "./LoadingScreen";
+export { default as LogoutModal } from "./LogoutModal";

@@ -186,7 +186,7 @@ const Home = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#212121]">
+    <div className="flex h-screen bg-[#212121] overflow-hidden">
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
@@ -206,7 +206,7 @@ const Home = () => {
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-[#212121]">
         <Header toggleSidebar={toggleSidebar} currentChat={currentChat} />
 
         <MessagesArea
