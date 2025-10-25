@@ -79,12 +79,21 @@ const useUserStore = create(
         }
       },
 
-      logout: () => {
-        set({
-          user: null,
-          isAuthenticated: false,
-          error: "",
-        });
+      logout: async () => {
+        try {
+          // Call backend logout endpoint to clear server-side cookie
+          await api.post("/auth/logout");
+        } catch (error) {
+          console.error("Error during logout:", error);
+          // Continue with client-side logout even if server call fails
+        } finally {
+          // Clear client-side state and localStorage
+          set({
+            user: null,
+            isAuthenticated: false,
+            error: "",
+          });
+        }
       },
 
       // Utility Actions

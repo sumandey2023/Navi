@@ -1,8 +1,13 @@
 import React, { useState } from "react";
-import { Menu, Share2, MoreVertical } from "lucide-react";
+import { Menu, Share2, MoreVertical, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useUserStore } from "../store";
+import { toast } from "react-toastify";
 import ShareChatModal from "./ShareChatModal";
 
 const Header = ({ toggleSidebar, currentChat }) => {
+  const navigate = useNavigate();
+  const { logout, user } = useUserStore();
   const [shareModal, setShareModal] = useState({
     isOpen: false,
     chat: null,
@@ -16,6 +21,33 @@ const Header = ({ toggleSidebar, currentChat }) => {
 
   const handleCloseShareModal = () => {
     setShareModal({ isOpen: false, chat: null });
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Error during logout", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    }
   };
 
   return (
@@ -37,11 +69,16 @@ const Header = ({ toggleSidebar, currentChat }) => {
             onClick={handleShare}
             className="p-2 text-gray-300 hover:bg-[#40414f] rounded-lg transition-colors"
             disabled={!currentChat}
+            title="Share chat"
           >
             <Share2 className="w-5 h-5" />
           </button>
-          <button className="p-2 text-gray-300 hover:bg-[#40414f] rounded-lg transition-colors">
-            <MoreVertical className="w-5 h-5" />
+          <button
+            onClick={handleLogout}
+            className="p-2 text-gray-300 hover:bg-[#40414f] rounded-lg transition-colors"
+            title="Logout"
+          >
+            <LogOut className="w-5 h-5" />
           </button>
         </div>
       </div>

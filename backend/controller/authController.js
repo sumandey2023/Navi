@@ -119,9 +119,25 @@ async function getCurrentUser(req, res) {
   }
 }
 
+async function logoutUser(req, res) {
+  try {
+    // Clear the httpOnly cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    res.status(200).json({ message: "User logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
   giveAiAssistantName,
   getCurrentUser,
+  logoutUser,
 };

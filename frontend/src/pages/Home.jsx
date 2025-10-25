@@ -92,13 +92,45 @@ const Home = () => {
     e.preventDefault();
     if (!userInput.trim() || isLoading) return;
 
+    const messageText = userInput;
+    setUserInput("");
+
+    // Auto-resize textarea back to original size
+    if (inputRef.current) {
+      inputRef.current.style.height = "48px";
+    }
+
     // If no current chat, create a new one
     if (!currentChat) {
       try {
         setLoading(true);
-        const newChat = await createNewChat(userInput);
+        const newChat = await createNewChat(messageText);
         if (newChat) {
           setCurrentChat(newChat);
+
+          // Add the user message to the UI
+          const userMessage = {
+            id: Date.now(),
+            text: messageText,
+            sender: "user",
+            timestamp: new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          };
+          addMessage(userMessage);
+
+          // Send message to socket for AI processing
+          if (socket && newChat.id) {
+            socket.emit("ai-message", {
+              chat: newChat.id,
+              content: messageText,
+            });
+          } else {
+            console.warn("No socket connection available");
+            setLoading(false);
+          }
+
           // Navigate to the new chat route
           navigate(`/chat/${newChat.id}`);
         }
@@ -109,9 +141,10 @@ const Home = () => {
       return;
     }
 
+    // If there's already a current chat, proceed normally
     const userMessage = {
       id: Date.now(),
-      text: userInput,
+      text: messageText,
       sender: "user",
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
@@ -120,19 +153,13 @@ const Home = () => {
     };
 
     addMessage(userMessage);
-    setUserInput("");
     setLoading(true);
-
-    // Auto-resize textarea back to original size
-    if (inputRef.current) {
-      inputRef.current.style.height = "48px";
-    }
 
     // Emit to backend via Socket.IO
     if (socket && currentChat?.id) {
       socket.emit("ai-message", {
         chat: currentChat.id,
-        content: userInput,
+        content: messageText,
       });
     } else {
       console.warn("No active chat or socket not connected");
