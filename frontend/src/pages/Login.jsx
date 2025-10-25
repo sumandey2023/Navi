@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../config/api";
 import { useTheme } from "../context/ThemeContext";
 import { useUserStore } from "../store";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -33,17 +34,8 @@ const Login = () => {
       // Fetch current user data after successful login
       await fetchCurrentUser();
 
-      toast.success("Login successful! Welcome back!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
-
-      navigate("/");
+      // Navigate to home page with success parameter
+      navigate("/?login=success");
     } catch (error) {
       console.error("Login failed:", error);
       toast.error(
@@ -298,6 +290,20 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+      {/* Toast Container for notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </>
   );
 };

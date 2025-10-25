@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../config/api";
 import { useTheme } from "../context/ThemeContext";
 import { useUserStore } from "../store";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -41,17 +42,8 @@ const Register = () => {
       // Fetch current user data after successful registration
       await fetchCurrentUser();
 
-      toast.success("Registration successful! Welcome to Navi!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-      });
-
-      navigate("/");
+      // Navigate to home page with success parameter
+      navigate("/?register=success");
     } catch (error) {
       console.log(error);
       toast.error(
@@ -348,6 +340,20 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      {/* Toast Container for notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </>
   );
 };

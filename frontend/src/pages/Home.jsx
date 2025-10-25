@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Sidebar, Header, MessagesArea, InputArea } from "../components";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useChatStore, useUserStore } from "../store";
 import { io } from "socket.io-client";
@@ -9,6 +9,7 @@ import baseUrl from "../config/baseUrl";
 
 const Home = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [userInput, setUserInput] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [socket, setSocket] = useState(null);
@@ -87,6 +88,39 @@ const Home = () => {
       });
     }
   }, [user, isAuthenticated, fetchCurrentUser]);
+
+  // Show success toasts based on URL parameters
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+
+    if (searchParams.get("login") === "success") {
+      toast.success("Login successful! Welcome back!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+      // Clean up URL
+      navigate("/", { replace: true });
+    }
+
+    if (searchParams.get("register") === "success") {
+      toast.success("Registration successful! Welcome to Navi!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+      // Clean up URL
+      navigate("/", { replace: true });
+    }
+  }, [location.search, navigate]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
