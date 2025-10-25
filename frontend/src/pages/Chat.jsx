@@ -334,7 +334,7 @@ const Chat = () => {
             userInput={userInput}
             handleInputChange={handleInputChange}
             handleKeyPress={handleKeyPress}
-            handleSendMessage={handleSendMessage}
+            handleSendClick={handleSendMessage}
             isLoading={isLoading}
             inputRef={inputRef}
           />
