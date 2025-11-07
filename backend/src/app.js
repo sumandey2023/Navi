@@ -13,6 +13,7 @@ app.use(
       "https://navi20.vercel.app",
       "https://navi-chat.vercel.app",
       "http://localhost:4173",
+      "https://navi20-new.vercel.app",
       process.env.FRONTEND_URL, // Add this to your environment variables
     ].filter(Boolean), // Remove any undefined values
     credentials: true,
